@@ -1,28 +1,29 @@
-import setTribe from "./utility.js";
+import setTribe from './utility.js'
 
-// абстрактный класс
 class TribeMember {
-    // конструктор для создания объекта класса
     constructor(name) {
-        // this - указатель на конкретный объект класса
         this.name = name;
         this.age = Math.round(Math.random() * 100);
         this.health = Math.round(Math.random() * 100);
-        this.damage = 1 + Math.round(Math.random() * 10);
+        this.damage = Math.round(Math.random() * 10);
         this.iq = Math.round(Math.random() * 20);
-    }
+    } 
 
-    getInfo() {
-        console.log(`${this.name} в возрасте ${this.age} лет имеет ${this.health} здоровья и наносит ${this.damage} урона. IQ ${this.iq}`)
+    getInfo() { 
+        console.log(`${this.name} в возрасте ${this.age} лет имеет ${this.health} здоровья и наносит ${this.damage} урона. IQ ${this.iq}`);
     }
 
     takeDamage(damage) {
+        if (this.health <= 0) {
+            console.log(`${this.name} уже умер`);
+            return false;
+        }
         this.health -= damage;
-        if(this.health <= 0) {
-            console.log(`${this.name} умерли;(`);
+        if (this.health <= 0) {
+            console.log(`${this.name} помер`);
             return true;
         } else {
-            console.log(`${this.name} получил ${damage}, осталось ${this.health}`);
+            console.log(`${this.name} получил ${damage} урона. Осталось ${this.health} здоровья`);
             return false;
         }
     }
@@ -30,7 +31,6 @@ class TribeMember {
 
 class SigmaBoss extends TribeMember {
     constructor(name) {
-        // ф-ция для наследования родителя
         super(name);
         this.weapons = [];
         if (this.iq > 10) {
@@ -39,18 +39,23 @@ class SigmaBoss extends TribeMember {
         if (this.health < 60) {
             this.health += 40;
         }
-    }
-
-    getInfoWeapon() {
-        console.log(`${this.name} имеет оружие: ${this.weapons.map(({name}) => `${name}`).join(', ')}`);
-    }
+        this.damage += 5;
+    } 
 
     addWeapon(weapon) {
         this.weapons.push(weapon);
-        console.log(`Теперь ${this.name} владеет оружием ${weapon.name}`);
+        console.log(`${this.name} теперь имеет оружие ${weapon.name} с уроном ${weapon.damage}`);
+    }
+
+    getInfoWeapons() {
+        console.log(`${this.name} имеет оружие ${this.weapons.map(({name, damage}) => `${name} с уроном ${damage}`).join(', ')}`)
     }
 
     attack(target) {
+        if (this.health <=0) {
+            console.log(`${this.name} умер и не может продoлжать бой`);
+            return false;
+        }
         console.log(`${this.name} атакует ${target.name}`);
         if (this.weapons.length === 0) {
             console.log(`${this.name} атакует рукой`);
@@ -58,9 +63,7 @@ class SigmaBoss extends TribeMember {
         } else {
             const mainWeapon = this.weapons.at(0);
             const resultDamage = mainWeapon.damage + this.damage;
-            target.takeDamage(resultDamage);
-            mainWeapon.use();
-            if (mainWeapon.use() ) {
+            if (mainWeapon.use() === true) {
                 target.takeDamage(resultDamage);
             } else {
                 this.weapons.shift();
@@ -68,128 +71,181 @@ class SigmaBoss extends TribeMember {
             }
         }
     }
-
 }
-// Denis.attack(Artem)
-
-// самостоятельно добавьте класс Тумба Юмба
-class TumbaUmba extends TribeMember {
-    constructor (name) {
+ 
+class TumbaYumba extends TribeMember {
+    constructor(name) {
         super(name);
         this.tools = [];
         this.dogs = [];
         this.secretPotato = '25 кг картошки';
-        if (this.iq < 10) {
-            this.iq += 30;
-        }
-        if (this.health > 40) {
-            this.health -= 30;
-        }
-        if (this.damage > 3) {
-            this.damage -= 3;
-        }
+        if (this.health > 20) {
+            this.health -= 20
+        } 
+        this.iq += 40
     }
-
+    addTool(tool) {
+        this.tools.push(tool);
+        console.log(`${this.name} теперь имеет инструмент ${tool.name} с уроном ${tool.damage}`)
+    }
     getInfoTools() {
-        console.log(`${this.name} имеет инструмент: ${this.tools.map(({name}) => `${name}`).join(', ')}`)
+        console.log(`${this.name} имеет инструмент ${this.tools.map(({name, damage}) => `${name} с уроном ${damage}`).join(', ')}`)
     }
-
     getInfoDogs() {
-        console.log(`${this.name} владеет собакой: ${this.dogs.map(({name}) => `${name}`).join(', ')}`)
+        console.log(`${this.name} владеет собакой ${this.dogs.map(({name, damage}) => `${name} с уроном ${damage}`).join(', ')}`);
     }
-
     addDog(dog) {
         this.dogs.push(dog);
         console.log(`${this.name} теперь владеет ${dog.name}`);
     }
-
     dogTraining(dog) {
-        // const papa = this.dog.filter(({name}) => name === dog);
-        const coffeesgod = this.iq / 10;
-        if (coffeesgod > 0.51){
-            dog.tRENEROFCKA();
-        } 
+        if (Math.random() + this.iq / 100 > 0.7) {
+            dog.train();
+        }
     }
-
-    addTools(tool) {
-        this.tools.push(tool);
-        console.log(`Теперь ${this.name} владеет инструментом ${tool.name}`);
+    attack(target) {
+        if (this.health <=0) {
+            console.log(`${this.name} умер и не может продoлжать бой`);
+            return false;
+        }
+        console.log(`${this.name} атакует ${target.name}`);
+        if (this.tools.length === 0) {
+            console.log(`${this.name} атакует рукой`);
+            target.takeDamage(this.damage);
+        } else {
+            const mainTool = this.tools.at(0);
+            const resultDamage = mainTool.damage + this.damage;
+            if (mainTool.use() === true) {
+                target.takeDamage(resultDamage);
+            } else {
+                this.tools.shift();
+                this.attack(target);
+            }
+        }
+    }
+    takeDamage(damage) {
+        if (this.health <= 0) {
+            console.log(`${this.name} уже умер`);
+            return false;
+        }
+        if (this.dogs.length > 0) {
+            if (this.dogs[0].takeDamage(damage) === true) {
+                this.dogs.shift();
+            }
+        } else {
+            this.health -= damage;
+            if (this.health <= 0) {
+                console.log(`${this.name} помер`);
+                return true;
+            } else {
+                console.log(`${this.name} получил ${damage} урона. Осталось ${this.health} здоровья`);
+                return false;
+            }
+        }
     }
 }
 
 class BattleDogs {
     constructor(name) {
         this.name = name;
-        this.health = 5 + Math.round(Math.random() * 25);
-        this.trainingLvl = 0;
+        this.health = 5 + Math.round(Math.random(0) * 25);
+        this.trainingLevel = 0;
         this.damage = 5;
     }
-
-    tRENEROFCKA() {
-        this.trainingLvl += 1;
+    train() {
+        this.damage += 5;
+    }
+    attack(target) {
+        console.log(`${this.name} атакует ${target.name}`);
+        target.takeDamage(this.damage);
+    }
+    takeDamage(damage) {
+        this.health -= damage;
+        if (this.health <= 0) {
+            console.log(`${this.name} помер`);
+            return true;
+        } else {
+            console.log(`${this.name} получил ${damage} урона. Осталось ${this.health} здоровья`);
+            return false;
+        }
     }
 }
 
-// класс оружия
-class Weapon {
+class Items {
     constructor(name) {
         this.name = name;
-        this.durability = 1 + Math.round(Math.random() * 10);
+        this.durability = 5 + Math.round(Math.random() * 5);
         this.damage = 5 + Math.round(Math.random() * 5);
+    }
+}
+
+class Weapons extends Items {
+    constructor(name) {
+        super(name);
     }
 
     use() {
         this.durability -= 1;
-        if (this.durability === 0) {
-            console.log(`${this.name} сломалось`);
+        if (this.durability <= 0) {
+            console.log(`Оружие ${this.name} сломалось`);
             return false;
         } else {
-            console.log(`${this.name} использовалось, осталось ${this.durability} использований`);
+            console.log(`У оружия ${this.name} осталось  ${this.durability} прочности`);
             return true;
         }
     }
 }
-// класс инструментов
-class Tools {
+
+class Tools extends Items {
     constructor(name) {
-        this.name = name;
-        this.durability = 1 + Math.round(Math.random() * 20);
-        this.damage = 1 + Math.round(Math.random() * 2);
+        super(name);
+        this.damage -= 3;
     }
 
     use() {
-        this.durability -= 1;
-        if (this.durability === 0) {
-            console.log(`${this.name} сломалось`);
+        this.durability -= 2;
+        if (this.durability <= 0) {
+            console.log(`Инструмент ${this.name} сломалось`);
+            return false;
         } else {
-            console.log(`${this.name} использовалось, осталось ${this.durability} использований`);
+            console.log(`У инструмента ${this.name} осталось ${this.durability} прочности`);
+            return true;
         }
     }
 }
 
-const Artem = new SigmaBoss('Artem');
-const Ivan = new TumbaUmba('Ivan');
-const Axe = new Weapon('BattleAxe');
-const Sword = new Weapon('Sword');
-const Motiga = new Tools('Motiga');
-
-// setTribe(new TribeMember('Ivan'));
+const Ivan = new SigmaBoss('Ivan');
 Ivan.getInfo();
-Ivan.getInfoTools();
-Ivan.getInfoDogs();
-Ivan.addTools(Motiga);
-Ivan.getInfoTools();
 
-Artem.getInfo();
-Artem.getInfoWeapon();
-Artem.addWeapon(Sword);
-Artem.addWeapon(Axe);
-Artem.getInfoWeapon();
+const ArsenMarkaryan = new BattleDogs('ArsenMarkaryan');
+const Mellstroy = new BattleDogs('Mellstroy');
 
-const Sasha = new BattleDogs('Sasha');
-const Anna = new BattleDogs('Anna');
-Ivan.addDog(Sasha);
-Ivan.getInfoDogs();
-console.log(Ivan)
-Ivan.dogTraining(Sasha);
-console.log(Ivan)
+const AshabTamaev = new TumbaYumba('AshabTamaev');
+
+const Ubivator3000 = new Weapons('Ubivator3000')
+const Excalibur = new Weapons('Excalibur')
+const Kirka = new Tools('Kirka');
+const ColaByBasta = new Tools('ColaByBasta')
+
+Ivan.addWeapon(Ubivator3000);
+Ivan.addWeapon(Excalibur);
+Ivan.getInfoWeapons();
+AshabTamaev.getInfo();
+AshabTamaev.addDog(ArsenMarkaryan);
+AshabTamaev.addDog(Mellstroy);
+AshabTamaev.getInfoTools();
+AshabTamaev.getInfoDogs();
+AshabTamaev.addTool(Kirka);
+AshabTamaev.addTool(ColaByBasta);
+AshabTamaev.getInfoTools();
+Ivan.attack(AshabTamaev);
+AshabTamaev.attack(Ivan);
+Ivan.attack(AshabTamaev);
+AshabTamaev.attack(Ivan);
+Ivan.attack(AshabTamaev);
+AshabTamaev.attack(Ivan);
+Ivan.attack(AshabTamaev);
+AshabTamaev.attack(Ivan);
+
+AshabTamaev.dogTraining(Mellstroy);
+//setTribe(new TribeMember('Ilya'));
